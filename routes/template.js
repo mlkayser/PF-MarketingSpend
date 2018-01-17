@@ -46,7 +46,9 @@ function createExcelTemplate(input) {
         {Tactic:'Production Fees'},
         {Tactic:'Agency Fees'},
         {Tactic:'Reoccurring Co-Op Contribution'},
-        {Tactic:'Total'}];
+        {Tactic:'Total'},
+        {Tactic:''},
+        {Tactic:'Promitional Club Expense'}];
     var baseHeader = {header:["Tactic"]};
 
     // One column for each club
@@ -72,6 +74,7 @@ function createExcelTemplate(input) {
         _.find(baseWs, {Tactic:'Production Fees'})[club.clubId] = 0;
         _.find(baseWs, {Tactic:'Agency Fees'})[club.clubId] = 0;
         _.find(baseWs, {Tactic:'Reoccurring Co-Op Contribution'})[club.clubId] = 0;
+        _.find(baseWs, {Tactic:'Promitional Club Expense'})[club.clubId] = 0;
         baseHeader.header.push(club.clubId);
     });
 
