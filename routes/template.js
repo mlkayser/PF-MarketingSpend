@@ -83,6 +83,9 @@ function createExcelTemplate(input) {
     var colChar = 'B';
     // Sum Rows
     _.forEach(input.clubs, function(club) {
+        // // Comment on Club ID
+        // ws[colChar + '1'].c = [ { a: 'PlanetFitness', t: 'Club Name here'} ];
+        // Sum
         ws[colChar + '23'] = { t:'n', f: "SUM(" + colChar + "2:" + colChar + "22)", F:"" + colChar + "23:" + colChar + "23" };
         colChar = nextChar(colChar);
     });
