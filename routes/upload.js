@@ -63,12 +63,15 @@ function validateSheet(output, reqBody) {
     ret.validation_status = 'Pending';
     ret.validation_message = 'Pending validation';
     ret.validation_errors = [];
+
+    var finalClubs = [];
     _.forEach(output, function(row) {
         var providedClubs = Object.keys(row);
         providedClubs.splice(providedClubs.indexOf('Tactic'),1); // Remove the Tactic column
         Object.keys(row).forEach(function(key) {
             _.forEach(reqBody.clubId, function(club) {
                 if(key === club) {
+                    if(finalClubs.indexOf(key) === -1) { finalClubs.push(key) };
                     providedClubs.splice(providedClubs.indexOf(key),1);
                     return;
                 }
@@ -85,6 +88,21 @@ function validateSheet(output, reqBody) {
             });
             return ret;
         }
+    });
+    // Cleanup - default values and remove commas
+    _.forEach(output, function(row) {
+        _.forEach(finalClubs, function(c) {
+            if(row[c] === undefined || row[c] === null) {
+                row[c] = '$0';
+            }
+            if(row[c] !== undefined && row[c] !== null && row[c].indexOf(',') !== -1) {
+                row[c] = row[c].replace(',','');
+            }
+        });
+        Object.keys(row).forEach(function(key) {
+            console.log('row = ' + row);
+            console.log('key = ' + key);
+        });
     });
     // Validation successful
     if(ret.validation_status === 'failed') {
