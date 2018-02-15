@@ -178,13 +178,27 @@ h1 {
         $('#tab_save').attr('data-toggle','tab');
         $('#tab_save').attr('href','#tabpreviewsave');
         $('#tab_save').trigger('click');
-        $('#errorpane')[0].innerHTML = '<strong>' + JSON.parse(responseText).output.err_desc + ':</strong><br/><ul>';
-        for(var i=0; i<JSON.parse(responseText).output.validation_errors.length; i++) {
-            $('#errorpane')[0].innerHTML += '<li>' + JSON.parse(responseText).output.validation_errors[i] + '</li>';
+        if(isJSON(responseText) && JSON.parse(responseText).output.err_desc !== undefined) { // Validation Errors from the Azure service
+            $('#errorpane')[0].innerHTML = '<strong>' + JSON.parse(responseText).output.err_desc + ':</strong><br/><ul>';
+            for (var i = 0; i < JSON.parse(responseText).output.validation_errors.length; i++) {
+                $('#errorpane')[0].innerHTML += '<li>' + JSON.parse(responseText).output.validation_errors[i] + '</li>';
+            }
+        } else { // Error from elsewhere, just a string.
+            $('#errorpane')[0].innerHTML = '<strong>Unexpected Error:</strong><br/><ul>';
+            $('#errorpane')[0].innerHTML += '<li>' + responseText +'</li>';
         }
         $('#errorpane')[0].innerHTML +=  '</ul>';
         $('#errorpane')[0].style.display = 'block';
         console.log(responseText);
+    }
+
+    function isJSON(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
     }
 </script>
 
