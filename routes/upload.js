@@ -64,6 +64,12 @@ function validateSheet(output, reqBody) {
     ret.validation_message = 'Pending validation';
     ret.validation_errors = [];
 
+    if(reqBody.clubId.constructor !== Array) { // convert this to an array if only one club ID is provided
+        var singleClubId = reqBody.clubId;
+        reqBody.clubId = [];
+        reqBody.clubId.push(singleClubId);
+    }
+
     var finalClubs = [];
     _.forEach(output, function(row) {
         var providedClubs = Object.keys(row);
