@@ -47,6 +47,13 @@ function processFile(filename, reqBody) {
             output[sheet_name_list[i]] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[i]]);
         }
         // sheet validation
+        if(output.DMA === undefined || output.DMA === null) {
+            return {
+                error_code:1,
+                err_desc:"Sheet validation failed",
+                validation_message: "The sheet/tab 'DMA' cannot be found in this workbook",
+                validation_errors: ["The sheet/tab 'DMA' cannot be found in this workbook.  The sheet must be named 'DMA' in order for it to be processed.  Please use the template generated for guidance."]};
+        }
         var validationResult = validateSheet(output.DMA, reqBody);
         if(validationResult.validation_status === 'success') {
             return {error_code:0,err_desc:null, data: output};
