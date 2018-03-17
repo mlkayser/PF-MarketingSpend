@@ -1,41 +1,22 @@
 'use strict';
 
-//Constants
-var WORKSHEET_NAME = 'DMA Spend';
-var SPEND_CATEGORIES = [
-    'Television',
-    'Streaming Television',
-    'Radio',
-    'Streaming Radio',
-    'Direct Mail',
-    'Shared Mail',
-    'Letter',
-    'Email',
-    'Digital Display',
-    'SEO/SEM',
-    'Social',
-    'OOH',
-    'Newspaper',
-    'Events',
-    'Sponsorship(s)',
-    'Guerilla Marketing',
-    'Promotional POP',
-    'Public Relations Fee',
-    'Production Fees',
-    'Agency Fees',
-    'Reoccurring Co-Op Contribution'
-];
+
 
 var totalClubs;
 
 
 //Imports
+var constants = require('../constants');
 
 var express = require('express');
 var router = express.Router();
-var _ = require('lodash');
+//var _ = require('lodash');
 var cors = require('cors');
 var Excel = require('exceljs');
+
+//Constants
+var WORKSHEET_NAME = constants.WORKSHEET_NAME;
+var SPEND_CATEGORIES = constants.SPEND_CATEGORIES;
 
 //Set up CORS so the internet will work as I desire
 router.options('*', cors());
