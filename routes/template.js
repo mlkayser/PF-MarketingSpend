@@ -4,9 +4,12 @@ var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 var cors = require('cors');
+var Excel = require('exceljs');
 
+//Set up CORS so the internet will work as I desire
 router.options('*', cors());
 
+//Handle Post requests sent to the main route
 router.post('/', function(req, res) {
     // CORS
     if (req.method === "OPTIONS") {
@@ -16,7 +19,18 @@ router.post('/', function(req, res) {
     }
     
     console.log('step 1');
-    // var input = {ownershipGroupNumber: 123, clubs: [{clubId: 'PF Club Id 1'},{clubId: 'PF Club Id 2'},{clubId: 'PF Club Id 3'},{clubId: 'PF Club Id 4'},{clubId: 'PF Club Id 5'},{clubId: 'PF Club Id 6'}]};
+    
+    // var input = {
+        // ownershipGroupNumber: 123,
+        // clubs: [
+            // {clubId: 'PF Club Id 1'},
+            // {clubId: 'PF Club Id 2'},
+            // {clubId: 'PF Club Id 3'},
+            // {clubId: 'PF Club Id 4'},
+            // {clubId: 'PF Club Id 5'},
+            // {clubId: 'PF Club Id 6'}
+        // ]
+    // };
     var input = req.body;
 
     // excel parser
@@ -80,11 +94,12 @@ function createExcelTemplate(input) {
         _.find(baseWs, {Tactic:'Promotional Club Expense'})[club.clubId] = 0;
         baseHeader.header.push(club.clubId);
     });
+    
+    //Create the Workbook
+    var workbook = new Excel.Workbook();
+    var ws = workbook.addWorksheet('My Sheet');
 
-    console.log('Step 2');
-    var XLSX = require('xlsx');
-    console.log('Step 3');
-    var ws = XLSX.utils.json_to_sheet(baseWs, baseHeader);
+    //var ws = XLSX.utils.json_to_sheet(baseWs, baseHeader);
     console.log('Step 4');
     var colChar = 'B';
     

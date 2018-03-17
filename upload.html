@@ -99,7 +99,17 @@ h1 {
 <script language="JavaScript">
     function downloadTemplate() {
         // Need the VFP to poplulate this
-        data = {ownershipGroupNumber: 123, clubs: [{clubId: 'PF Club Id 1'},{clubId: 'PF Club Id 2'},{clubId: 'PF Club Id 3'},{clubId: 'PF Club Id 4'},{clubId: 'PF Club Id 5'},{clubId: 'PF Club Id 6'}]};;
+        data = {
+            ownershipGroupNumber: 123,
+            clubs: [
+                {clubId: 'PF Club Id 1', clubName: 'PF CLUB NAME 1'},
+                {clubId: 'PF Club Id 2', clubName: 'PF CLUB NAME 2'},
+                {clubId: 'PF Club Id 3', clubName: 'PF CLUB NAME 3'},
+                {clubId: 'PF Club Id 4', clubName: 'PF CLUB NAME 4'},
+                {clubId: 'PF Club Id 5', clubName: 'PF CLUB NAME 5'},
+                {clubId: 'PF Club Id 6', clubName: 'PF CLUB NAME 6'}
+                ]
+        };
 
         // Use XMLHttpRequest instead of Jquery $ajax
         xhttp = new XMLHttpRequest();
