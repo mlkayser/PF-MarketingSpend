@@ -27,9 +27,6 @@ router.post('/', function(req, res) {
 
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     var sampleFile = req.files.sampleFile;
-    
-    // console.log('***the request***');
-    // console.log(req.body);
 
     // Use the mv() method to place the file somewhere on your server
     var fn = './uploads/' + req.body.ownershipGroupId + '-upload-' + new Date().toISOString().substr(0,10) + '.xlsx';
@@ -37,7 +34,7 @@ router.post('/', function(req, res) {
         if (err) {
             return res.status(500).send(err);
         } else {
-            processFile(fn, req.body, function(output){
+            processFile(fn, req.body, function(output){ //ProcessFile takes a callback due to the asynchronous nature of the 'Read Notebook function'
                 //console.log(output);
                 if(output.error_code === 0) {
                     res.status(200).send({status: 'success', output: output});
@@ -49,7 +46,7 @@ router.post('/', function(req, res) {
     });
 });
 
-function processFile(filename, reqBody, callback) {
+function processFile(filename, reqBody, returnStatusFunction) {
     // read from a file
     var workbook = new Excel.Workbook();
     workbook.xlsx.readFile(filename)
@@ -61,7 +58,7 @@ function processFile(filename, reqBody, callback) {
                 
                     // sheet validation
                 if(worksheet === undefined || worksheet === null) {
-                    callback({
+                    returnStatusFunction({
                         error_code:1,
                         err_desc:"Sheet validation failed",
                         validation_message: "The sheet/tab 'DMA' cannot be found in this workbook",
@@ -75,12 +72,12 @@ function processFile(filename, reqBody, callback) {
                 var output = [];
                 var clubIDs = [];
                 var headerRow = worksheet.getRow(1);
+                
+                //Produce an array of the club numbers:
+                //['1234', '2345', '3456'...n]
                 headerRow.eachCell(function(cell, colNumber){
                     clubIDs.push(cell.value);
-                    //output[cell.value] = {};
                 });
-                
-                //console.log(clubIDs);
     
                 worksheet.eachRow(function(row, rowNumber) {
                     //console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
@@ -89,85 +86,23 @@ function processFile(filename, reqBody, callback) {
                     output[rowNumber - 1] = {};
                     
                     row.eachCell({includeEmpty: true}, function(cell, colNumber) {
-                        //console.log('Cell ' + colNumber + ' = ' + cell.value);
-                        // if (colNumber === 1){
-                        //     output[clubIDs[colNumber - 1]] = {};
-                        // }else{
-                        //
-                        // }
                         output[rowNumber - 1][clubIDs[colNumber-1]] = cell.value;
-                        
-                        
-
-                        //console.log('row number: ' + rowNumber);
-                        
                     });
-                    
                 });
                 
-                console.log(output, null, 4);
-                // console.log('***First Row***');
-                // var row = worksheet.getRow(1);
-                // row.eachCell(function(cell, colNumber) {
-                //     console.log('Cell ' + colNumber + ' = ' + cell.value);
-                // });
-                
-                    //var validationResult = validateSheet(output.DMA, reqBody);
+                    //var validationResult = validateSheet(output, reqBody);
                     // if(validationResult.validation_status === 'success') {
                     
                     // } else { // validation error
                     //     return {error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors};
                     // }
         
-                callback({error_code:0,err_desc:null, data: output});
+                returnStatusFunction({error_code:0,err_desc:null, data: output});
             } catch (e){
-                callback({error_code:1,err_desc:"Corrupted excel file", exception:e.message});
+                returnStatusFunction({error_code:1,err_desc:"Corrupted excel file", exception:e.message});
         }
     });
 }
-    
-   
-    // excel parser
-    // var XLSX = require('xlsx');
-    // try {
-    //     var workbook = XLSX.readFile(filename);
-    //     var sheet_name_list = workbook.SheetNames;
-    //     var output = {};
-    //     for(var i=0; i<sheet_name_list.length; i++) {
-    //         output[sheet_name_list[i]] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[i]]);
-    //     }
-    //     console.log('***Original Output Object***');
-    //     console.log(output);
-    //     // sheet validation
-    //     if(output.DMA === undefined || output.DMA === null) {
-    //         return {
-    //             error_code:1,
-    //             err_desc:"Sheet validation failed",
-    //             validation_message: "The sheet/tab 'DMA' cannot be found in this workbook",
-    //             validation_errors: ["The sheet/tab 'DMA' cannot be found in this workbook.  The sheet must be named 'DMA' in order for it to be processed.  Please use the template generated for guidance."]};
-    //     }
-    //     var validationResult = validateSheet(output.DMA, reqBody);
-    //     if(validationResult.validation_status === 'success') {
-    //         return {error_code:0,err_desc:null, data: output};
-    //     } else { // validation error
-    //         return {error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors};
-    //     }
-    // } catch (e){
-    //     return {error_code:1,err_desc:"Corrupted excel file", exception:e.message};
-    // }
-
-
-
-function sliceOutTopRow() {
-
-}
-
-
-
-
-
-
-
 //LEGACY
 
 function validateSheet(output, reqBody) {
