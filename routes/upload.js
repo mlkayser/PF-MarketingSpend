@@ -27,6 +27,9 @@ router.post('/', function(req, res) {
 
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     var sampleFile = req.files.sampleFile;
+    
+    // console.log('***the request***');
+    // console.log(req.body);
 
     // Use the mv() method to place the file somewhere on your server
     var fn = './uploads/' + req.body.ownershipGroupId + '-upload-' + new Date().toISOString().substr(0,10) + '.xlsx';
@@ -35,7 +38,7 @@ router.post('/', function(req, res) {
             return res.status(500).send(err);
         } else {
             processFile(fn, req.body, function(output){
-                console.log(output);
+                //console.log(output);
                 if(output.error_code === 0) {
                     res.status(200).send({status: 'success', output: output});
                 } else {
@@ -54,7 +57,7 @@ function processFile(filename, reqBody, callback) {
             try {
                 //Find the DMA Sheet
                 var worksheet = workbook.getWorksheet(WORKSHEET_NAME);
-                console.log(worksheet);
+                //console.log(worksheet);
                 
                     // sheet validation
                 if(worksheet === undefined || worksheet === null) {
@@ -68,13 +71,82 @@ function processFile(filename, reqBody, callback) {
                 
                 //Murder the first Row, as it contains the ClubName, while we really care about the Id
                 worksheet.spliceRows(1,1);
+                
+                var output = [];
+                
+                // output[WORKSHEET_NAME] = [
+                //
+                //         {
+                //             "Tactic": 123,
+                //             "PF Club Id 1": "PF Club Id 1",
+                //             "PF Club Id 2": "PF Club Id 2",
+                //             "PF Club Id 3": "PF Club Id 3",
+                //             "PF Club Id 4": "PF Club Id 4",
+                //             "PF Club Id 5": "PF Club Id 5"
+                //         },
+                //
+                //
+                //         {
+                //             "Tactic": "Television",
+                //             "PF Club Id 1": "$111",
+                //             "PF Club Id 2": "$222",
+                //             "PF Club Id 3": "$333",
+                //             "PF Club Id 4": "$444",
+                //             "PF Club Id 5": "$555"
+                //         }
+                //
+                //
+                // ];
+                
+                
+                
+                
+                //validateSheet(worksheet, reqBody);
+                
+                // {DMA: {
+                //
+                // }}
     
                 //Confirmation that the first row is returning clubIds now.
-                console.log('***First Row***');
-                var row = worksheet.getRow(1);
-                row.eachCell(function(cell, colNumber) {
-                    console.log('Cell ' + colNumber + ' = ' + cell.value);
+                
+                var clubIDs = [];
+                var headerRow = worksheet.getRow(1);
+                headerRow.eachCell(function(cell, colNumber){
+                    clubIDs.push(cell.value);
+                    //output[cell.value] = {};
                 });
+                
+                //console.log(clubIDs);
+    
+                worksheet.eachRow(function(row, rowNumber) {
+                    //console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
+                    //output.push(row.values[1]);
+                    output.push({});
+                    output[rowNumber - 1] = {};
+                    
+                    row.eachCell({includeEmpty: true}, function(cell, colNumber) {
+                        //console.log('Cell ' + colNumber + ' = ' + cell.value);
+                        // if (colNumber === 1){
+                        //     output[clubIDs[colNumber - 1]] = {};
+                        // }else{
+                        //
+                        // }
+                        output[rowNumber - 1][clubIDs[colNumber-1]] = cell.value;
+                        
+                        
+
+                        //console.log('row number: ' + rowNumber);
+                        
+                    });
+                    
+                });
+                
+                console.log(output, null, 4);
+                // console.log('***First Row***');
+                // var row = worksheet.getRow(1);
+                // row.eachCell(function(cell, colNumber) {
+                //     console.log('Cell ' + colNumber + ' = ' + cell.value);
+                // });
                 
                     //var validationResult = validateSheet(output.DMA, reqBody);
                     // if(validationResult.validation_status === 'success') {
@@ -83,7 +155,7 @@ function processFile(filename, reqBody, callback) {
                     //     return {error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors};
                     // }
         
-                callback({error_code:0,err_desc:null});
+                callback({error_code:0,err_desc:null, data: output});
             } catch (e){
                 callback({error_code:1,err_desc:"Corrupted excel file", exception:e.message});
         }
@@ -148,7 +220,7 @@ function validateSheet(output, reqBody) {
 
     var finalClubs = [];
     console.log('***Lets see what is going on with the output Object***');
-    console.log(output);
+    //console.log(output);
     output = output.splice(1, output.length);
     console.log('***Modified Array Object***');
     console.log(output);
