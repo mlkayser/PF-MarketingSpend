@@ -73,42 +73,6 @@ function processFile(filename, reqBody, callback) {
                 worksheet.spliceRows(1,1);
                 
                 var output = [];
-                
-                // output[WORKSHEET_NAME] = [
-                //
-                //         {
-                //             "Tactic": 123,
-                //             "PF Club Id 1": "PF Club Id 1",
-                //             "PF Club Id 2": "PF Club Id 2",
-                //             "PF Club Id 3": "PF Club Id 3",
-                //             "PF Club Id 4": "PF Club Id 4",
-                //             "PF Club Id 5": "PF Club Id 5"
-                //         },
-                //
-                //
-                //         {
-                //             "Tactic": "Television",
-                //             "PF Club Id 1": "$111",
-                //             "PF Club Id 2": "$222",
-                //             "PF Club Id 3": "$333",
-                //             "PF Club Id 4": "$444",
-                //             "PF Club Id 5": "$555"
-                //         }
-                //
-                //
-                // ];
-                
-                
-                
-                
-                //validateSheet(worksheet, reqBody);
-                
-                // {DMA: {
-                //
-                // }}
-    
-                //Confirmation that the first row is returning clubIds now.
-                
                 var clubIDs = [];
                 var headerRow = worksheet.getRow(1);
                 headerRow.eachCell(function(cell, colNumber){
