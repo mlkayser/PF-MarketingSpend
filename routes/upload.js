@@ -90,12 +90,12 @@ function processFile(filename, reqBody, returnStatusFunction) {
                     });
                 });
                 
-                    //var validationResult = validateSheet(output, reqBody);
-                    // if(validationResult.validation_status === 'success') {
-                    
-                    // } else { // validation error
-                    //     return {error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors};
-                    // }
+                var validationResult = validateSheet(output, reqBody);
+                if(validationResult.validation_status === 'success') {
+                
+                } else { // validation error
+                    returnStatusFunction({error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors});
+                }
         
                 returnStatusFunction({error_code:0,err_desc:null, data: output});
             } catch (e){
@@ -106,6 +106,10 @@ function processFile(filename, reqBody, returnStatusFunction) {
 //LEGACY
 
 function validateSheet(output, reqBody) {
+    
+    // console.log('***Whats om the requestbody?');
+    // console.log(reqBody);
+    
     var ret = {};
     ret.validation_status = 'Pending';
     ret.validation_message = 'Pending validation';
@@ -118,15 +122,19 @@ function validateSheet(output, reqBody) {
     }
 
     var finalClubs = [];
-    console.log('***Lets see what is going on with the output Object***');
+    //console.log('***Lets see what is going on with the output Object***');
     //console.log(output);
     output = output.splice(1, output.length);
-    console.log('***Modified Array Object***');
-    console.log(output);
+    // console.log('***Modified Array Object***');
+    // console.log(output);
     
     
     _.forEach(output, function(row) {
-        var providedClubs = Object.keys(row);
+        // console.log('***Instance of a row***');
+        // console.log(row);
+        
+        var providedClubs = Object.keys(row); //Returns an array of the keys: [' PF Club ID 1' ...n]
+        //console.log(providedClubs);
         
         providedClubs.splice(providedClubs.indexOf('Tactic'),1); // Remove the Tactic column
         Object.keys(row).forEach(function(key) {
@@ -134,7 +142,7 @@ function validateSheet(output, reqBody) {
                 if(key === club) {
                     if(finalClubs.indexOf(key) === -1) { finalClubs.push(key); }
                     providedClubs.splice(providedClubs.indexOf(key),1);
-                    return;
+                    //return;
                 }
             });
         });
@@ -150,21 +158,33 @@ function validateSheet(output, reqBody) {
             return ret;
         }
     });
+    
+    
+    
     // Cleanup - default values and remove commas
+    console.log('***the output***');
+    console.log(output);
+    
+    console.log('***final clubs***');
+    console.log(finalClubs);
+    
     _.forEach(output, function(row) {
         _.forEach(finalClubs, function(c) {
             if(row[c] === undefined || row[c] === null) {
-                row[c] = '$0';
+                row[c] = 0;
             }
-            if(row[c] !== undefined && row[c] !== null && row[c].indexOf(',') !== -1) {
-                row[c] = row[c].replace(',','');
-            }
+            // if(row[c] !== undefined && row[c] !== null && row[c].indexOf(',') !== -1) {
+            //     row[c] = row[c].replace(',','');
+            // }
         });
         Object.keys(row).forEach(function(key) {
            // console.log('row = ' + row);
             //console.log('key = ' + key);
         });
     });
+    
+    console.log('did i get here?');
+    
     // Validation successful
     if(ret.validation_status === 'failed') {
         return ret;
