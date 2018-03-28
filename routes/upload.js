@@ -8,6 +8,7 @@ var cors = require('cors');
 var constants = require('../constants');
 
 var WORKSHEET_NAME = constants.WORKSHEET_NAME;
+var TEMPLATE_VERSION = constants.TEMPLATE_VERSION;
 
 var Excel = require('exceljs');
 
@@ -64,6 +65,17 @@ function processFile(filename, reqBody, returnStatusFunction) {
                         validation_message: "The sheet/tab 'DMA' cannot be found in this workbook",
                         validation_errors: ["The sheet/tab 'DMA' cannot be found in this workbook.  The sheet must be named 'DMA' in order for it to be processed.  Please use the template generated for guidance."]
                     });
+                    return;
+                }
+                
+                if(worksheet.getCell('A1').value !== TEMPLATE_VERSION) {
+                    returnStatusFunction({
+                        error_code:1,
+                        err_desc:"Sheet validation failed",
+                        validation_message: "Wrong Version of the Template Used",
+                        validation_errors: ["Wrong Version of the Template Used.  Please generate a new template and try again."]
+                    });
+                    return;
                 }
                 
                 //Murder the first Row, as it contains the ClubName, while we really care about the Id
@@ -73,11 +85,15 @@ function processFile(filename, reqBody, returnStatusFunction) {
                 var clubIDs = [];
                 var headerRow = worksheet.getRow(1);
                 
+                
+                
                 //Produce an array of the club numbers:
                 //['1234', '2345', '3456'...n]
                 headerRow.eachCell(function(cell, colNumber){
                     clubIDs.push(cell.value);
                 });
+                
+                
     
                 worksheet.eachRow(function(row, rowNumber) {
                     //console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
@@ -92,18 +108,22 @@ function processFile(filename, reqBody, returnStatusFunction) {
                 
                 var validationResult = validateSheet(output, reqBody);
                 if(validationResult.validation_status === 'success') {
+                    returnStatusFunction({error_code:0,err_desc:null, data: output});
                 
                 } else { // validation error
                     returnStatusFunction({error_code:1,err_desc:"Sheet validation failed", validation_message: validationResult.validation_message, validation_errors: validationResult.validation_errors});
+                    
                 }
         
-                returnStatusFunction({error_code:0,err_desc:null, data: output});
+                
             } catch (e){
                 returnStatusFunction({error_code:1,err_desc:"Corrupted excel file", exception:e.message});
         }
     });
 }
 //LEGACY
+
+
 
 function validateSheet(output, reqBody) {
     
@@ -192,5 +212,7 @@ function validateSheet(output, reqBody) {
         return {validation_status:'success',validation_message:'Validation successful'};
     }
 }
+
+
 
 module.exports = router;

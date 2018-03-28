@@ -22,5 +22,6 @@ module.exports = {
         'Production Fees',
         'Agency Fees',
         'Reoccurring Co-Op Contribution'
-    ]
+    ],
+    TEMPLATE_VERSION: 2
 };

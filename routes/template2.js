@@ -17,6 +17,7 @@ var Excel = require('exceljs');
 //Constants
 var WORKSHEET_NAME = constants.WORKSHEET_NAME;
 var SPEND_CATEGORIES = constants.SPEND_CATEGORIES;
+var TEMPLATE_VERSION = constants.TEMPLATE_VERSION;
 
 //Set up CORS so the internet will work as I desire
 router.options('*', cors());
@@ -81,7 +82,6 @@ router.post('/', function(req, res) {
 function newWorkbook(){
     var workbook = new Excel.Workbook();
     workbook.created = new Date();
-    
     return workbook;
 }
 
@@ -91,7 +91,7 @@ function constructColumns(workbook, sheetName, clubs){
     
     var worksheet = workbook.addWorksheet(sheetName);
     var columns = [
-        { header: '', key: 'tactic', width: 30 }
+        { header: TEMPLATE_VERSION, key: 'tactic', width: 30 }
     ];
     
     for(var i = 0; i < clubs.length; i++){
