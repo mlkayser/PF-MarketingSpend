@@ -48,6 +48,16 @@ router.post('/', function(req, res) {
 });
 
 function processFile(filename, reqBody, returnStatusFunction) {
+    
+    if(filename === undefined || filename === null || reqBody === null) {
+        returnStatusFunction({
+            error_code: 1,
+            err_desc: "Broken",
+            validation_message: "The sheet/tab 'DMA' cannot be found in this workbook",
+            validation_errors: ["The sheet/tab 'DMA' cannot be found in this workbook.  The sheet must be named 'DMA' in order for it to be processed.  Please use the template generated for guidance."]
+        });
+        return;
+    }
     // read from a file
     var workbook = new Excel.Workbook();
     workbook.xlsx.readFile(filename)
@@ -56,6 +66,7 @@ function processFile(filename, reqBody, returnStatusFunction) {
                 //Find the DMA Sheet
                 var worksheet = workbook.getWorksheet(WORKSHEET_NAME);
                 //console.log(worksheet);
+                
                 
                     // sheet validation
                 if(worksheet === undefined || worksheet === null) {
