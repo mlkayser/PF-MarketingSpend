@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -6,7 +8,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var upload = require('./routes/upload');
-var template = require('./routes/template');
+var template = require('./routes/template2');
 
 var app = express();
 

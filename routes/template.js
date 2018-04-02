@@ -1,10 +1,15 @@
+"use strict";
+
 var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 var cors = require('cors');
+var Excel = require('exceljs');
 
+//Set up CORS so the internet will work as I desire
 router.options('*', cors());
 
+//Handle Post requests sent to the main route
 router.post('/', function(req, res) {
     // CORS
     if (req.method === "OPTIONS") {
@@ -12,8 +17,20 @@ router.post('/', function(req, res) {
     } else {
         res.header('Access-Control-Allow-Origin', '*');
     }
-
-    // var input = {ownershipGroupNumber: 123, clubs: [{clubId: 'PF Club Id 1'},{clubId: 'PF Club Id 2'},{clubId: 'PF Club Id 3'},{clubId: 'PF Club Id 4'},{clubId: 'PF Club Id 5'},{clubId: 'PF Club Id 6'}]};
+    
+    console.log('step 1');
+    
+    // var input = {
+        // ownershipGroupNumber: 123,
+        // clubs: [
+            // {clubId: 'PF Club Id 1'},
+            // {clubId: 'PF Club Id 2'},
+            // {clubId: 'PF Club Id 3'},
+            // {clubId: 'PF Club Id 4'},
+            // {clubId: 'PF Club Id 5'},
+            // {clubId: 'PF Club Id 6'}
+        // ]
+    // };
     var input = req.body;
 
     // excel parser
@@ -77,18 +94,30 @@ function createExcelTemplate(input) {
         _.find(baseWs, {Tactic:'Promotional Club Expense'})[club.clubId] = 0;
         baseHeader.header.push(club.clubId);
     });
+    
+    //Create the Workbook
+    var workbook = new Excel.Workbook();
+    var ws = workbook.addWorksheet('My Sheet');
 
-    var XLSX = require('xlsx');
-    var ws = XLSX.utils.json_to_sheet(baseWs, baseHeader);
+    //var ws = XLSX.utils.json_to_sheet(baseWs, baseHeader);
+    console.log('Step 4');
     var colChar = 'B';
+    
     // Sum Rows
     _.forEach(input.clubs, function(club) {
         // // Comment on Club ID
         // ws[colChar + '1'].c = [ { a: 'PlanetFitness', t: 'Club Name here'} ];
         // Sum
-        ws[colChar + '23'] = { t:'n', f: "SUM(" + colChar + "2:" + colChar + "22)", F:"" + colChar + "23:" + colChar + "23" };
+        ws[colChar + '23'] = {
+            t:'n',
+            f: "SUM(" + colChar + "2:" + colChar + "22)",
+            F:"" + colChar + "23:" + colChar + "23"
+        };
+        
         colChar = nextChar(colChar);
     });
+    
+    
 
     // Formatting
     var fmt = '$0.00'; // or '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)' or any Excel number format
@@ -101,9 +130,9 @@ function createExcelTemplate(input) {
             /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
             var ref = XLSX.utils.encode_cell({r:i, c:x});
             /* if the particular row did not contain data for the column, the cell will not be generated */
-            if(!ws[ref]) continue;
+            if(!ws[ref]) {continue;}
             /* `.t == "n"` for number cells */
-            if(ws[ref].t != 'n') continue;
+            if(ws[ref].t !== 'n') {continue;}
             /* assign the `.z` number format */
             ws[ref].z = fmt;
         }
@@ -118,8 +147,12 @@ function createExcelTemplate(input) {
 
     var fn = './uploads/' + input.ownershipGroupNumber + '-template-' + new Date().toISOString().substr(0,10) + '.xlsx';
     var wb = { SheetNames:['DMA'], Sheets:{}};
-    wb.Sheets['DMA'] = ws;
-    XLSX.writeFile(wb, fn);
+    wb.Sheets.DMA = ws;
+    
+    var XLSX_style = require('xlsx-style');
+    
+    
+    XLSX_style.writeFile(wb, fn);
     return fn;
 }
 
