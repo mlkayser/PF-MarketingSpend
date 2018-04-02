@@ -38,6 +38,8 @@ router.post('/', function(req, res) {
             processFile(fn, req.body, function(output){ //ProcessFile takes a callback due to the asynchronous nature of the 'Read Notebook function'
                 //console.log(output);
                 if(output.error_code === 0) {
+                    console.log('I SENT: ');
+                    console.log(output.data);
                     res.status(200).send({status: 'success', output: output});
                 } else {
                     res.status(400).send({status: 'error', output: output});
@@ -155,7 +157,7 @@ function validateSheet(output, reqBody) {
     var finalClubs = [];
     //console.log('***Lets see what is going on with the output Object***');
     //console.log(output);
-    output = output.splice(1, output.length);
+    //output = output.splice(1, output.length);
     // console.log('***Modified Array Object***');
     // console.log(output);
     
